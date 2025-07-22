@@ -10,7 +10,6 @@ import MeteoraDecoder from "./decoders/meteora";
 import { Launchpads, Launchpad } from "./types/launchpads";
 
 import { createSubscribeRequest } from "./utils/subscription";
-import { matchesInstructionDiscriminator } from "./utils/transaction";
 
 const RABBIT_URI =
   process.env.RABBIT_URI || "amqp://guest:guest@localhost:5672";
@@ -107,12 +106,10 @@ function handleData(data: SubscribeUpdate): void {
   publishToQueue(QUEUE_NAME, formattedData);
 }
 
-// Main function
 async function main(): Promise<void> {
   try {
     await connectRabbitMQ(RABBIT_URI, QUEUE_NAME);
     console.log("Connected to RabbitMQ");
-    // ... start streamer logic here
   } catch (error) {
     console.error("Failed to connect to RabbitMQ", error);
     process.exit(1);
