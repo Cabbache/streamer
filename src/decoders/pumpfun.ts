@@ -1,11 +1,10 @@
 import { SubscribeUpdate } from "@triton-one/yellowstone-grpc";
 import {
   matchesInstructionDiscriminator,
-  isSubscribeUpdateTransaction,
+  convertSignature,
 } from "../utils/transaction";
 import { PublicKey } from "@solana/web3.js";
 import { Message, FormattedTransactionData } from "../types/transaction";
-import bs58 from "bs58";
 
 export default function PumpFunDecoder(
   data: SubscribeUpdate,
@@ -29,7 +28,7 @@ export default function PumpFunDecoder(
   const formattedSignature = convertSignature(transaction.signature);
   const formattedData = formatData(
     message,
-    formattedSignature.base58,
+    formattedSignature,
     data.transaction.slot,
     discriminator,
   );
@@ -73,8 +72,4 @@ export function formatData(
     slot,
     ...includedAccounts,
   };
-}
-
-function convertSignature(signature: Uint8Array): { base58: string } {
-  return { base58: bs58.encode(Buffer.from(signature)) };
 }

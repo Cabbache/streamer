@@ -88,8 +88,10 @@ function handleData(data: SubscribeUpdate): void {
   if (data.filters.length === 0) {
     return;
   }
-  if (data.filters.length > 1)
-    throw new Error(`unexpected: hit more than 1 filter: ${data.filters}`);
+  if (data.filters.length > 1) {
+    console.log(`unexpected: hit more than 1 filter: ${data.filters}`);
+    return;
+  }
 
   const filter_launchpad = data.filters[0];
   if (!(filter_launchpad in launchpads))

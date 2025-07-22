@@ -2,6 +2,7 @@ import {
   SubscribeUpdate,
   SubscribeUpdateTransaction,
 } from "@triton-one/yellowstone-grpc";
+import bs58 from "bs58";
 import { CompiledInstruction } from "../types/transaction";
 
 export function isSubscribeUpdateTransaction(
@@ -24,4 +25,8 @@ export function matchesInstructionDiscriminator(
 
   const ixBuffer = Buffer.from(ix.data);
   return ixBuffer.subarray(0, discriminator.length).equals(discriminator);
+}
+
+export function convertSignature(signature: Uint8Array): string {
+  return bs58.encode(Buffer.from(signature));
 }

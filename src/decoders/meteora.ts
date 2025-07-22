@@ -1,11 +1,8 @@
 import { SubscribeUpdate } from "@triton-one/yellowstone-grpc";
 import {
   matchesInstructionDiscriminator,
-  isSubscribeUpdateTransaction,
+  convertSignature,
 } from "../utils/transaction";
-import { PublicKey } from "@solana/web3.js";
-import { Message, FormattedTransactionData } from "../types/transaction";
-import bs58 from "bs58";
 
 export default function MeteoraDecoder(
   data: SubscribeUpdate,
@@ -26,7 +23,14 @@ export default function MeteoraDecoder(
     return;
   }
 
+  const signature_buf = data.transaction?.transaction?.signature;
+  let signature = null;
+  if (signature_buf) signature = convertSignature(signature_buf);
+
+  //console.log(matchingInstruction);
+
   return {
     slot: data.transaction.slot,
+    signature: signature,
   };
 }
