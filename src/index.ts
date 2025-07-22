@@ -8,6 +8,8 @@ import { ClientDuplexStream } from "@grpc/grpc-js";
 import { PublicKey } from "@solana/web3.js";
 import bs58 from "bs58";
 
+import { publishToQueue, connectRabbitMQ } from "./utils/rabbitmq";
+
 // Type definitions
 interface FormattedTransactionData {
   signature: string;
@@ -42,6 +44,10 @@ interface MessageAddressTableLookup {
   writableIndexes: Uint8Array;
   readonlyIndexes: Uint8Array;
 }
+
+const RABBIT_URI =
+  process.env.RABBIT_URI || "amqp://guest:guest@localhost:5672";
+const QUEUE_NAME = "pumpfun_mints";
 
 // Constants
 const ENDPOINT = "http://78.138.105.2:9547";
@@ -169,6 +175,7 @@ function handleData(data: SubscribeUpdate): void {
     );
     console.table(formattedData);
     console.log("\n");
+    publishToQueue("pumpfun_mints", formattedData);
   }
 }
 
@@ -230,6 +237,15 @@ function matchesInstructionDiscriminator(ix: CompiledInstruction): boolean {
 
 // Main function
 async function main(): Promise<void> {
+  try {
+    await connectRabbitMQ(RABBIT_URI, QUEUE_NAME);
+    console.log("Connected to RabbitMQ");
+    // ... start streamer logic here
+  } catch (error) {
+    console.error("Failed to connect to RabbitMQ", error);
+    process.exit(1);
+  }
+
   const client = new Client(ENDPOINT, "some auth token", {});
   const stream = await client.subscribe();
   const request = createSubscribeRequest();
