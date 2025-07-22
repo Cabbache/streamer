@@ -6,7 +6,7 @@ import { ClientDuplexStream } from "@grpc/grpc-js";
 
 import { publishToQueue, connectRabbitMQ } from "./utils/rabbitmq";
 import PumpFunDecoder from "./decoders/pumpfun";
-import { Launchpads } from "./types/launchpads";
+import { Launchpads, Launchpad } from "./types/launchpads";
 
 import { createSubscribeRequest } from "./utils/subscription";
 
@@ -85,24 +85,23 @@ function handleStreamEvents(
 
 function handleData(data: SubscribeUpdate): void {
   if (data.filters.length === 0) {
-    console.warn("ignoring data (0 filters)");
-    console.log(data);
     return;
   }
   if (data.filters.length > 1)
     throw new Error(`unexpected: hit more than 1 filter: ${data.filters}`);
 
   const filter_launchpad = data.filters[0];
-  console.log(`lp: ${filter_launchpad}`);
   if (!(filter_launchpad in launchpads))
     throw new Error(`unexpected: unknown launchpad: ${filter_launchpad}`);
 
-  const launchpad = launchpads[filter_launchpad];
-  const formattedData = launchpad.decoder(data, launchpads.discriminator);
+  const launchpad: Launchpad = launchpads[filter_launchpad];
+  let formattedData = launchpad.decoder(data, launchpad.discriminator);
   if (!formattedData) {
-    console.log("no data");
     return;
   }
+  formattedData = { ...formattedData, launchpad: filter_launchpad };
+
+  console.log(`lp: ${filter_launchpad}`);
   console.table(formattedData);
   publishToQueue(QUEUE_NAME, formattedData);
 }
@@ -124,9 +123,7 @@ async function main(): Promise<void> {
 
   try {
     await sendSubscribeRequest(stream, request);
-    console.log(
-      "Geyser connection established - watching new Pump.fun mints. \n",
-    );
+    console.log("Geyser connection established.\n");
     await handleStreamEvents(stream);
   } catch (error) {
     console.error("Error in subscription process:", error);

@@ -20,13 +20,8 @@ export function matchesInstructionDiscriminator(
   ix: CompiledInstruction,
   discriminator: Buffer,
 ): boolean {
-  console.log("entry");
   if (!ix?.data || !discriminator || discriminator.length === 0) return false;
-  console.log("checking");
 
   const ixBuffer = Buffer.from(ix.data);
-  console.log(
-    `checking if ${ixBuffer.subarray(0, discriminator.length)} = ${discriminator}`,
-  );
   return ixBuffer.subarray(0, discriminator.length).equals(discriminator);
 }

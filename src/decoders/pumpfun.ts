@@ -26,7 +26,6 @@ export default function PumpFunDecoder(
     return;
   }
 
-  console.log("formatting (match)");
   const formattedSignature = convertSignature(transaction.signature);
   const formattedData = formatData(
     message,
