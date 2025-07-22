@@ -1,4 +1,4 @@
-# Launchpad detection demo
+# Launch detection demo
 
 ## References
 
