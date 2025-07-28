@@ -29,6 +29,6 @@ pub async fn get_subscribe_request() -> SubscribeRequest {
         commitment: Some(CommitmentLevel::Confirmed.into()),
         accounts_data_slice: vec![],
         ping: None,
-        from_slot: Some(0),
+        from_slot: None,
     }
 }

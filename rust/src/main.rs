@@ -14,18 +14,16 @@ async fn main() -> anyhow::Result<()> {
     println!("Connecting");
     let mut client = connect().await?;
     println!("connected");
-
     let sub_request = get_subscribe_request().await;
-
     let (mut sub_tx, mut stream) = client.subscribe_with_request(Some(sub_request)).await?;
+    println!("stream opened");
     while let Some(msg) = stream.next().await {
         match msg {
             Ok(msg) => {
                 println!("{:?}", msg);
             }
-            Err(e) => eprintln!("{:?}", e),
+            Err(e) => eprintln!("error: {:?}", e),
         }
     }
-    println!("stream opened");
     Ok(())
 }
