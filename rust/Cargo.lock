@@ -3485,6 +3485,8 @@ name = "streamer"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "futures-util",
+ "tokio",
  "yellowstone-grpc-client",
  "yellowstone-grpc-proto",
 ]

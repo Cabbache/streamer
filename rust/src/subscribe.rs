@@ -5,7 +5,6 @@ use yellowstone_grpc_proto::{
 };
 
 pub async fn get_subscribe_request() -> SubscribeRequest {
-    // Build the transactions filter map based on CLI arguments.
     let mut transactions = HashMap::new();
     transactions.insert(
         "lp1".to_string(),
