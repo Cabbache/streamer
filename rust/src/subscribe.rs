@@ -5,13 +5,25 @@ use yellowstone_grpc_proto::{
 };
 
 pub async fn get_subscribe_request() -> SubscribeRequest {
+    //I am aware
     let mut transactions = HashMap::new();
     transactions.insert(
-        "lp1".to_string(),
+        "pumpfun".to_string(),
         SubscribeRequestFilterTransactions {
             vote: None,
             failed: None,
             account_include: vec!["6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P".to_string()],
+            account_exclude: vec![],
+            account_required: vec![], //I am aware this can be optimised
+            signature: None,
+        },
+    );
+    transactions.insert(
+        "meteora".to_string(),
+        SubscribeRequestFilterTransactions {
+            vote: None,
+            failed: None,
+            account_include: vec!["cpamdpZCGKUy5JxQXB4dcpGPiikHawvSWAd6mEn1sGG".to_string()],
             account_exclude: vec![],
             account_required: vec![],
             signature: None,
