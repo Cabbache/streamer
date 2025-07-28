@@ -4,6 +4,7 @@ use rabbit::RabbitWrapper;
 use subscribe::get_subscribe_request;
 use yellowstone_grpc_client::{GeyserGrpcClient, Interceptor};
 
+mod launchpad;
 mod rabbit;
 mod subscribe;
 
@@ -20,8 +21,6 @@ async fn main() -> anyhow::Result<()> {
 	println!("Connecting to rabbitmq");
 	let rabbit = RabbitWrapper::new().await;
 	println!("Connected to rabbitmq");
-	let payload = "testing".to_string();
-	rabbit.push(payload).await;
 
 	let sub_request = get_subscribe_request().await;
 	let (mut sub_tx, mut stream) = client.subscribe_with_request(Some(sub_request)).await?;
@@ -29,7 +28,7 @@ async fn main() -> anyhow::Result<()> {
 	while let Some(msg) = stream.next().await {
 		match msg {
 			Ok(msg) => {
-				println!("{:?}", msg);
+				println!("{:?}", msg.filters);
 			}
 			Err(e) => eprintln!("error: {:?}", e),
 		}

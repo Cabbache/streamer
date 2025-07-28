@@ -4,31 +4,25 @@ use yellowstone_grpc_proto::{
 	prelude::SubscribeRequest,
 };
 
+use crate::launchpad::get_launchpads;
+
 pub async fn get_subscribe_request() -> SubscribeRequest {
-	//I am aware
-	let mut transactions = HashMap::new();
-	transactions.insert(
-		"pumpfun".to_string(),
-		SubscribeRequestFilterTransactions {
-			vote: None,
-			failed: None,
-			account_include: vec!["6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P".to_string()],
-			account_exclude: vec![],
-			account_required: vec![], //I am aware this can be optimised
-			signature: None,
-		},
-	);
-	transactions.insert(
-		"meteora".to_string(),
-		SubscribeRequestFilterTransactions {
-			vote: None,
-			failed: None,
-			account_include: vec!["cpamdpZCGKUy5JxQXB4dcpGPiikHawvSWAd6mEn1sGG".to_string()],
-			account_exclude: vec![],
-			account_required: vec![],
-			signature: None,
-		},
-	);
+	let transactions = get_launchpads()
+		.iter()
+		.map(|lp| {
+			(
+				lp.name(),
+				SubscribeRequestFilterTransactions {
+					vote: None,
+					failed: None,
+					account_include: lp.account_include(),
+					account_exclude: vec![],
+					account_required: vec![], //I am aware this can be optimised
+					signature: None,
+				},
+			)
+		})
+		.collect::<HashMap<String, SubscribeRequestFilterTransactions>>();
 
 	SubscribeRequest {
 		slots: HashMap::new(),
