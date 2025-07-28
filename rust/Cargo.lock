@@ -4465,6 +4465,8 @@ dependencies = [
  "anyhow",
  "futures-util",
  "lapin",
+ "serde",
+ "serde_json",
  "tokio",
  "yellowstone-grpc-client",
  "yellowstone-grpc-proto",

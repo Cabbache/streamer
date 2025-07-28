@@ -10,3 +10,7 @@ pub trait LaunchPad {
 pub fn get_launchpads() -> Vec<Box<dyn LaunchPad>> {
 	vec![Box::new(meteora::Meteora {}), Box::new(pumpfun::PumpFun {})]
 }
+
+pub fn get_launchpad(name: &String) -> Option<Box<dyn LaunchPad>> {
+	get_launchpads().into_iter().find(|lp| lp.name() == *name)
+}

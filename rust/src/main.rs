@@ -1,6 +1,7 @@
 use futures_util::StreamExt;
 
-use rabbit::RabbitWrapper;
+use launchpad::{get_launchpad, get_launchpads};
+use rabbit::{RabbitMessage, RabbitWrapper};
 use subscribe::get_subscribe_request;
 use yellowstone_grpc_client::{GeyserGrpcClient, Interceptor};
 
@@ -27,8 +28,41 @@ async fn main() -> anyhow::Result<()> {
 	println!("stream opened");
 	while let Some(msg) = stream.next().await {
 		match msg {
-			Ok(msg) => {
-				println!("{:?}", msg.filters);
+			Ok(subupdate) => {
+				let len = subupdate.filters.len();
+				if len != 1 {
+					//this is bad
+					continue;
+				}
+				let lp = get_launchpad(&subupdate.filters[0]).unwrap();
+				match subupdate.update_oneof {
+					Some(
+						yellowstone_grpc_proto::geyser::subscribe_update::UpdateOneof::Transaction(
+							tx,
+						),
+					) => {
+						if let Some(info) = tx.transaction {
+							let sig = info.signature;
+							if let Some(message) =
+								info.transaction.and_then(|tx_inner| tx_inner.message)
+							{
+								let finding = message.instructions.iter().find(|&ix| {
+									ix.data.as_slice().starts_with(&lp.discriminator())
+								});
+								if finding.is_some() {
+									let rb = RabbitMessage {
+										slot: tx.slot,
+										signature: sig,
+										launchpad: lp.name(),
+									};
+									println!("{:?}", rb);
+									rabbit.push(&rb).await
+								}
+							}
+						}
+					}
+					_ => {}
+				}
 			}
 			Err(e) => eprintln!("error: {:?}", e),
 		}

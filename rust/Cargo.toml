@@ -7,6 +7,8 @@ edition = "2024"
 anyhow = "1.0.98"
 futures-util = "0.3.31"
 lapin = "3.0.2"
+serde = { version = "1.0.219", features = ["derive"] }
+serde_json = "1.0.141"
 tokio = { version = "1.47.0", features = ["rt-multi-thread"] }
 yellowstone-grpc-client = "8.0.0"
 yellowstone-grpc-proto = "8.0.0"

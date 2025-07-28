@@ -3,10 +3,18 @@ use lapin::{
 	options::{BasicPublishOptions, QueueDeclareOptions},
 	types::FieldTable,
 };
+use serde::Serialize;
 const QUEUE: &'static str = "launchpads";
 
 pub struct RabbitWrapper {
 	channel: lapin::Channel,
+}
+
+#[derive(Serialize, Debug)]
+pub struct RabbitMessage {
+	pub slot: u64,
+	pub signature: Vec<u8>,
+	pub launchpad: String,
 }
 
 impl RabbitWrapper {
@@ -31,13 +39,14 @@ impl RabbitWrapper {
 		Self { channel }
 	}
 
-	pub async fn push(&self, data: String) {
+	pub async fn push(&self, msg: &RabbitMessage) {
+		let encoded: String = serde_json::to_string(&msg).expect("serialization failed");
 		self.channel
 			.basic_publish(
 				"",
 				QUEUE,
 				BasicPublishOptions::default(),
-				data.as_bytes(),
+				encoded.as_bytes(),
 				BasicProperties::default(),
 			)
 			.await
